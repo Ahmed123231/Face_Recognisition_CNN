@@ -72,7 +72,7 @@ def recognize_face(image, model, class_names=["Person1", "Person2", "Unknown"]):
 
 # Sidebar for Mode Selection
 logo_url = "https://img.freepik.com/free-vector/face-recognition-biometric-scan-cyber-security-technology-blue-tone_53876-119532.jpg"
-st.sidebar.image(logo_url, use_column_width=True)
+st.sidebar.image(logo_url, use_container_width=True)
 st.sidebar.markdown(
     "<h1 style='font-size: 30px;'>Face Recognition System</h1>", 
     unsafe_allow_html=True
