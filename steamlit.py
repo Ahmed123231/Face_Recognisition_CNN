@@ -71,12 +71,15 @@ def recognize_face(image, model, class_names=["Person1", "Person2", "Unknown"]):
     return None, None
 
 # Sidebar for Mode Selection
-st.sidebar.title("Face Recognition System")
+st.sidebar.markdown(
+    "<h1 style='font-size: 30px;'>Face Recognition System</h1>", 
+    unsafe_allow_html=True
+)
 mode = st.sidebar.radio("Choose Mode:", ["Upload Image", "Live Camera"])
 
 # Upload Image Mode
 if mode == "Upload Image":
-    st.title("Upload an Image for Face Recognition")
+    st.title("Upload a Celebrity Image for Face Recognition")
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
 
     if uploaded_file:
