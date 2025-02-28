@@ -11,7 +11,7 @@ st.set_page_config(page_title="AI Face Recognition", layout="wide")
 # Ensure model file exists
 MODEL_PATH = "model.onnx"
 if not os.path.exists(MODEL_PATH):
-    st.error("⚠️ Model file not found! Please upload `model.onnx` to your repository.")
+    st.error("Model file not found! Please upload `model.onnx` to your repository.")
     st.stop()
 
 # Load ONNX Model
@@ -71,12 +71,12 @@ def recognize_face(image, model, class_names=["Person1", "Person2", "Unknown"]):
     return None, None
 
 # Sidebar for Mode Selection
-st.sidebar.title("⚡ Face Recognition System")
+st.sidebar.title("Face Recognition System")
 mode = st.sidebar.radio("Choose Mode:", ["Upload Image", "Live Camera"])
 
 # Upload Image Mode
 if mode == "Upload Image":
-    st.title("🖼️ Upload an Image for Face Recognition")
+    st.title("Upload an Image for Face Recognition")
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
 
     if uploaded_file:
