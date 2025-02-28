@@ -5,6 +5,9 @@ import onnxruntime as ort
 import cv2
 from PIL import Image
 
+
+# Streamlit Page Configuration
+st.set_page_config(page_title="AI Face Recognition", layout="wide")
 # Ensure model file exists
 MODEL_PATH = "model.onnx"
 if not os.path.exists(MODEL_PATH):
@@ -18,8 +21,7 @@ def load_model():
 
 model = load_model()
 
-# Streamlit Page Configuration
-st.set_page_config(page_title="AI Face Recognition", layout="wide")
+
 st.markdown(
     """
     <style>
