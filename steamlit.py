@@ -1,19 +1,24 @@
 import os
-
-try:
-    import cv2
-    import onnxruntime as ort
-except ModuleNotFoundError:
-    os.system("pip install opencv-python-headless")
-    os.system("pip install onnxruntime")
-    import cv2
-    import onnxruntime as ort
-
 import streamlit as st
 import numpy as np
+import onnxruntime as ort
+import cv2
 from PIL import Image
 
-# Futuristic UI Design
+# Ensure model file exists
+MODEL_PATH = "model.onnx"
+if not os.path.exists(MODEL_PATH):
+    st.error("⚠️ Model file not found! Please upload `model.onnx` to your repository.")
+    st.stop()
+
+# Load ONNX Model
+@st.cache_resource  # Cache the model to speed up inference
+def load_model():
+    return ort.InferenceSession(MODEL_PATH)
+
+model = load_model()
+
+# Streamlit Page Configuration
 st.set_page_config(page_title="AI Face Recognition", layout="wide")
 st.markdown(
     """
@@ -29,17 +34,9 @@ st.markdown(
             font-family: 'Courier New', Courier, monospace;
         }
     </style>
-    <div class="title">TEAM 4</div>
+    <div class="title">TEAM 4 - Face Recognition</div>
     """, unsafe_allow_html=True
 )
-
-# Load ONNX Model
-def load_model(model_path):
-    return ort.InferenceSession(model_path) if model_path else None
-
-model_path = "model.onnx"
-model = load_model(model_path)
-
 
 # Image Processing Function
 def preprocess_image(image, target_size=(299, 299)):
@@ -52,8 +49,6 @@ def preprocess_image(image, target_size=(299, 299)):
 
     return img_array  # Final shape: (1, 299, 299, 3)
 
-
-
 # Face Recognition Function
 def recognize_face(image, model, class_names=["Person1", "Person2", "Unknown"]):
     processed_img = preprocess_image(image)
@@ -61,8 +56,6 @@ def recognize_face(image, model, class_names=["Person1", "Person2", "Unknown"]):
     if model:
         input_name = model.get_inputs()[0].name
         output = model.run(None, {input_name: processed_img})[0]  # Get first output
-
-        print("Raw Model Output:", output)  # Debugging step
 
         predicted_class = np.argmax(output)  # Get index of highest probability
         confidence = np.max(output)  # Get confidence level
@@ -75,17 +68,15 @@ def recognize_face(image, model, class_names=["Person1", "Person2", "Unknown"]):
 
     return None, None
 
-
-
-
 # Sidebar for Mode Selection
 st.sidebar.title("⚡ Face Recognition System")
 mode = st.sidebar.radio("Choose Mode:", ["Upload Image", "Live Camera"])
 
+# Upload Image Mode
 if mode == "Upload Image":
     st.title("🖼️ Upload an Image for Face Recognition")
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"], accept_multiple_files=False)
-    
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
+
     if uploaded_file:
         image = Image.open(uploaded_file)
         st.image(image, caption="Uploaded Image", use_container_width=True)
@@ -94,25 +85,24 @@ if mode == "Upload Image":
             name, confidence = recognize_face(image, model)
 
             if name:
-                st.success(f"Recognized as: {name} ({confidence*100:.2f}% confidence)")
+                st.success(f"✅ Recognized as: {name} ({confidence*100:.2f}% confidence)")
             else:
-                st.warning("Face not recognized.")
+                st.warning("⚠️ Face not recognized.")
 
+# Live Camera Mode (Fixed for Streamlit Cloud)
 elif mode == "Live Camera":
     st.title("📷 Live Camera Face Recognition")
-    st.write("Turn on your camera and detect faces in real-time.")
+    
+    uploaded_image = st.camera_input("Take a picture")
 
-    cap = cv2.VideoCapture(0)
-    frame_placeholder = st.empty()
-    stop_button = st.button("Stop Camera")
+    if uploaded_image:
+        image = Image.open(uploaded_image)
+        st.image(image, caption="Captured Image", use_container_width=True)
 
-    while not stop_button:
-        ret, frame = cap.read()
-        if not ret:
-            st.warning("Failed to grab frame")
-            break
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame_placeholder.image(frame, channels="RGB")
+        if st.button("Recognize Face"):
+            name, confidence = recognize_face(image, model)
 
-    cap.release()
-    cv2.destroyAllWindows()
+            if name:
+                st.success(f"✅ Recognized as: {name} ({confidence*100:.2f}% confidence)")
+            else:
+                st.warning("⚠️ Face not recognized.")
