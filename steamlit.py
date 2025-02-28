@@ -1,7 +1,16 @@
+import os
+
+try:
+    import cv2
+    import onnxruntime as ort
+except ModuleNotFoundError:
+    os.system("pip install opencv-python-headless")
+    os.system("pip install onnxruntime")
+    import cv2
+    import onnxruntime as ort
+
 import streamlit as st
-import cv2
 import numpy as np
-import onnxruntime as ort
 from PIL import Image
 
 # Futuristic UI Design
