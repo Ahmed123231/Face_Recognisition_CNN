@@ -6,6 +6,9 @@ import cv2
 from PIL import Image
 
 
+# Loading the class labels 
+class_names = np.load("class_labels.npy").tolist()
+print("Loaded Class Names:", class_names)
 # Streamlit Page Configuration
 st.set_page_config(page_title="AI Face Recognition", layout="wide")
 # Ensure model file exists
@@ -36,7 +39,7 @@ st.markdown(
             font-family: 'Courier New', Courier, monospace;
         }
     </style>
-    <div class="title">TEAM 4 - Face Recognition</div>
+    <div class="title">TEAM 4 - Celebrity Face Recognition</div>
     """, unsafe_allow_html=True
 )
 
@@ -52,23 +55,22 @@ def preprocess_image(image, target_size=(299, 299)):
     return img_array  # Final shape: (1, 299, 299, 3)
 
 # Face Recognition Function
-def recognize_face(image, model, class_names=["Person1", "Person2", "Unknown"]):
+def recognize_face(image, model):
     processed_img = preprocess_image(image)
-
+    
     if model:
         input_name = model.get_inputs()[0].name
-        output = model.run(None, {input_name: processed_img})[0]  # Get first output
+        output = model.run(None, {input_name: processed_img})[0]
 
         predicted_class = np.argmax(output)  # Get index of highest probability
         confidence = np.max(output)  # Get confidence level
 
-        # Ensure predicted_class is within valid range
         if predicted_class >= len(class_names):
-            return "Unknown", confidence  # Return "Unknown" if index is out of range
+            return "Unknown", confidence  # Ensure index is valid
 
-        return class_names[predicted_class], confidence
+        return class_names[predicted_class], confidence  # Use extracted class names
 
-    return None, None
+
 
 # Sidebar for Mode Selection
 logo_url = "https://img.freepik.com/free-vector/face-recognition-biometric-scan-cyber-security-technology-blue-tone_53876-119532.jpg"
